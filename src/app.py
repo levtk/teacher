@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
 from dotenv import load_dotenv
-from user import UserForm
+from user import UserRegisterForm
 import os
 
 load_dotenv()
@@ -26,9 +26,9 @@ def req():
     ua = request.headers.get('User-Agent')
     return '<h1>Your browser is {}.'.format(ua)
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/register', methods=['GET','POST'])
 def login():
-    form = UserForm()
+    form = UserRegisterForm()
     if form.validate_on_submit():
         old_email = session.get('email')
         if old_email is not None and old_email != form.email.data:
@@ -38,7 +38,7 @@ def login():
         session['second_name'] = form.second_name.data
         session['third_name'] = form.third_name.data
         return redirect(url_for('index')) #TODO create a registration request page informing it's pending.
-    return render_template('login.html', form=form)
+    return render_template('register.html', form=form)
 
 @app.errorhandler(404)
 def page_not_found(e):

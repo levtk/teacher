@@ -1,17 +1,18 @@
+from uuid import uuid4
 from flask import Flask, request, render_template, session, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
-from flask_moment import Moment
-from datetime import datetime
 from dotenv import load_dotenv
-from user import UserRegisterForm
+from user import UserRegisterForm, User, UserType
+from db import insert_user
 import os
+import logging
+
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 bootstrap = Bootstrap(app)
-moment = Moment(app)
 
 @app.route('/')
 def index():
@@ -37,8 +38,21 @@ def login():
         session['first_name'] = form.first_name.data
         session['second_name'] = form.second_name.data
         session['third_name'] = form.third_name.data
+        session['fourth_name'] = form.fourth_name.data
+        session['invite_code'] = form.invite_code.data
+        session['phone'] = form.phone.data
+        session['whatsapp'] = form.whatsapp.data
+        uuid = uuid4()
+        new_user = User(first_name=session['first_name'],second_name=session['second_name'],third_name=session['third_name'],fourth_name=session['fourth_name'],
+                        email=session['email'],phone=session['phone'], user_type=[2],instructor_id=uuid, instructor_name='valeria', whatsapp=session['whatsapp'], id=uuid)
+        logging.debug(new_user)
+        insert_user(new_user)
         return redirect(url_for('index')) #TODO create a registration request page informing it's pending.
     return render_template('register.html', form=form)
+
+@app.route('/homework')
+def homework():
+    return render_template("homework.html")
 
 @app.errorhandler(404)
 def page_not_found(e):

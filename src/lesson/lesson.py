@@ -20,19 +20,19 @@ class Level(Enum):
     C2 = auto()
 
 @dataclass
-class Exercise:
+class Exercise():
     id: UUID
     instructor_id: UUID
     kind: Kind
     level: Level
     description: str
     question: str
-    link: str
-    answer_choices: list[str]
-    free_form_answer: str
+    link: str|None
+    answer_choices: list[str]|None
+    free_form_answer: str|None
 
 @dataclass
-class Lesson:
+class Lesson():
     """Class for a lesson which holds exercises, assignment due date, language, etc..."""
     id: UUID
     instructor_id: UUID

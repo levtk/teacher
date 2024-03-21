@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import date
 from enum import Enum
+import logging
 from uuid import UUID, uuid4
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
@@ -58,11 +59,11 @@ class User:
         self.updated = None
         self.instructor_id = instructor_id
     
-    @property
     def test_phone(self) -> bool:
         try:
             pn = phonenumbers.parse(self.phone)
             if pn:
+                logging.debug(f'This is the phone number { pn }')
                 return True
         except phonenumbers.NumberParseException:
             return False

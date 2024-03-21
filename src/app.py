@@ -47,7 +47,7 @@ def login():
                         email=session['email'],phone=session['phone'], user_type=[2],instructor_id=uuid, instructor_name='valeria', whatsapp=session['whatsapp'], id=uuid)
         logging.debug(new_user)
         insert_user(new_user)
-        return redirect(url_for('index')) #TODO create a registration request page informing it's pending.
+        return redirect(url_for('reg_pending.html'))
     return render_template('register.html', form=form)
 
 @app.route('/homework')

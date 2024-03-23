@@ -1,14 +1,23 @@
-from uuid import uuid4
 from flask import Flask, request, render_template, session, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
 from dotenv import load_dotenv
-from user import UserRegisterForm, User, UserType
-from db import insert_user
+from user.user import UserRegisterForm, User
+from db.db import get_user_by_email, insert_user
 import os
 import logging
+import uuid
+
+logging.basicConfig(
+    level=logging.INFO,  # Set the default logging level
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+logger = logging.getLogger(__name__)
 
 
-load_dotenv()
+if load_dotenv():
+    logger.info('loaded .env file...')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -18,9 +27,17 @@ bootstrap = Bootstrap(app)
 def index():
     return render_template('index.html')
 
+@app.route('/modal')
+def modal():
+    return render_template('dynamic_modal.html')
+
 @app.route('/user/<name>')
 def user(name):
     return render_template('user.html', name=name)
+
+@app.route('/reg_pending')
+def reg_pending():
+    return render_template('reg_pending.html')
 
 @app.route('/request/test')
 def req():
@@ -42,12 +59,17 @@ def login():
         session['invite_code'] = form.invite_code.data
         session['phone'] = form.phone.data
         session['whatsapp'] = form.whatsapp.data
-        uuid = uuid4()
-        new_user = User(first_name=session['first_name'],second_name=session['second_name'],third_name=session['third_name'],fourth_name=session['fourth_name'],
-                        email=session['email'],phone=session['phone'], user_type=[2],instructor_id=uuid, instructor_name='valeria', whatsapp=session['whatsapp'], id=uuid)
-        logging.debug(new_user)
-        insert_user(new_user)
-        return redirect(url_for('reg_pending.html'))
+        teacher = get_user_by_email('davenlorena@gmail.com')
+        if teacher:
+            print(f'The teacher is , {teacher.first_name}')
+            new_user = User(first_name=session['first_name'],second_name=session['second_name'],third_name=session['third_name'],fourth_name=session['fourth_name'],
+                        email=session['email'],phone=session['phone'], user_type=[2],instructor_id=teacher.id, instructor_name=teacher.first_name, whatsapp=session['whatsapp'], id=str(uuid.uuid4()), subscription_plan=None)
+            logger.debug(new_user)
+            insert_user(new_user)
+            return redirect(url_for('reg_pending'))
+        else:
+            logger.warn('failed to find teacher by invite_code')
+        return redirect(url_for('reg_pending'))
     return render_template('register.html', form=form)
 
 @app.route('/homework')

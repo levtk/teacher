@@ -1,6 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from enum import Enum, auto
+from logging import Logger
 from uuid import UUID
 
 class Kind(Enum):
@@ -41,5 +42,7 @@ class Lesson():
     language: str
     assigned_to: list[str]
     assigned_on: date
-    due_by: date
+    due_by: date = field(
+        metadata={"validate": lambda instance, value: value >= instance.assigned_on}
+    )
     exercises: list[Exercise]
